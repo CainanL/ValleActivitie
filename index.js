@@ -11,7 +11,7 @@ app.use('/news', express.json(), newsRouter);
 
 app.use(express.static(path.join(__dirname, 'client/build/')));
 app.get('*', (req, res)=>{
-    res.sendFile(path.join(__dirname, 'client/build/index.html'), (error)=>{
+    res.sendFile(path.join(__dirname, 'client/build/'), (error)=>{
         if(error) res.status(500).send(error);
     })
 })

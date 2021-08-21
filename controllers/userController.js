@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 
 const userController = {
 
-    login: (req, res)=>{
-        //add async await
-        res.send('Login');
+    login: async (req, res)=>{        
+        
+        
     },
 
     registerUser: (req, res)=>{

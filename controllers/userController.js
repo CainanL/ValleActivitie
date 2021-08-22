@@ -12,53 +12,81 @@ const userController = {
 
         //Search user in database
         const user = await User.findOne({email: req.body.email});
-        if(!user) res.status(400).send("Email dosen't exist");
+        if(!user) return res.status(400).send("Email dosen't exist");
 
         //compare password
         const verifiedPassword = bcrypt.compareSync(req.body.password, user.password);
 
         //user response
         if(verifiedPassword){
-            const token = jwt.sign({_id: selectedUser}, process.env.TOKEN_KEY);
+            const token = jwt.sign({_id: user._id}, process.env.TOKEN_KEY);
             res.send([token]);
+        }else{
+            return res.status(400).send('Incorrect password');
         }
     },
 
     registerUser: async (req, res)=>{
+        //Data validate
         const {error} = userValidate.register(req.body);
-        if(error) res.status(400).send(error.message);
+        if(error) return res.status(400).send(error.message);
 
+        //Check email duplicity
         const selecteduser = await User.findOne({email: req.body.email});
-        if (selecteduser) res.status(400).send('Email allready exist');
+        if (selecteduser) return res.status(400).send('Email allready exist');
 
+        //Prepare user data
         const user = new User({
             name: req.body.name,
             email: req.body.email,
-            password: req.body.password,
+            password: bcrypt.hashSync(req.body.password),
             admin: req.body.admin ? true : false
         })
 
+        //Send to database
         try{
             const saved = await user.save();
-            res.send(savedUser);
+            res.send(saved);
         }catch(error){
             res.status(400).send(error);
         }
     },
 
-    registerAdmin: (req, res)=>{
-        //add async await
-        res.send('admin registered');
+    editUser: async (req, res)=>{
+        //Data validate
+        const {error} = userValidate.edit(req.body);
+        if(error) return res.status(400).send(error.message);
+
+        //User update
+        const editedUser = await User.updateOne({_id: req.body._id}, {
+            $set: req.body.password.length >= 6 ? {
+                name: req.body.name,
+                password: bcrypt.hashSync(req.body.password),
+                admin: req.body.admin ? req.body.admin : false
+            }:{
+                name: req.body.name,
+                admin: req.body.admin ? req.body.admin : false
+            }
+        })
+
+        console.log(editedUser)
+
+        //Response to user
+        if(!editedUser) return res.status(400).send('Error: User not found');
+        res.send(editedUser);
     },
 
-    editUser: (req, res)=>{
-        //add async await
-        res.send('user edited');
-    },
+    deletUser: async (req, res)=>{
+        //Data validate
+        const {error} = userValidate.delete(req.body);
+        if(error) return res.status(400).send(error.message);
 
-    deletUser: (req, res)=>{
-        //add async await
-        res.send('user deleted');
+        //User delete
+        const deletedUser = await User.deleteOne({_id: req.body._id});
+
+        //Response to user
+        if(!deletedUser) return res.status(400).send('Error: User not found');
+        res.send(deletedUser);
     }
 }
 

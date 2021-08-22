@@ -11,7 +11,7 @@ const userRouter = require('./routes/userRouter');
 mongoose.connect(process.env.MONGO_URL,
     { useNewUrlParser: true, useUnifiedTopology: true},
     error => {
-        error ? console.log(error) : console.log('Mongoose Runing');
+        error ? console.log("deu ruim", error) : console.log('Mongoose Runing');
     }
 )
 

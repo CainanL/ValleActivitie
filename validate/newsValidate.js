@@ -4,7 +4,7 @@ const joi = require('@hapi/joi');
 module.exports = newsValidate = {
     create: data => {
         const schema = joi.object({
-            posterId: joi.string().required(),
+            posterToken: joi.string().required(),
             title: joi.string().required().min(3).max(50),
             text: joi.string().required().min(10),
             imageLink: joi.string().allow('')

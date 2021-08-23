@@ -12,13 +12,15 @@ const userController = {
         const { error } = newsValidate.create(req.body);
         if (error) return res.status(400).send(error.message);
 
+        const _id = jwt.verify(req.body.posterToken, process.env.TOKEN_KEY);
+
         //Search post in database
         const selectedPost = await News.findOne({ title: req.body.title });
         if (selectedPost) return res.status(400).send("Title post already exist");
 
         //Prepare news data
         const post = new News({
-            posterId: req.body.posterId,
+            posterId: _id._id,
             title: req.body.title,
             text: req.body.text,
             imageLink: req.body.imageLink
@@ -58,8 +60,12 @@ const userController = {
         const { error } = newsValidate.update(req.body);
         if (error) return res.status(400).send(error.message);
 
+        //Verify admin and send news
+        const _id = jwt.verify(req.body.editerId, process.env.TOKEN_KEY);
         const news = await News.findOne({ _id: req.body._id });
-        const user = await User.findOne({ _id: req.body.editerId });
+        const user = await User.findOne({ _id: _id._id });
+
+        console.log(news, user)
 
         //News user verification
         if (!user.admin && user._id != news.posterId) return res.status(403).send('Access denied');
@@ -82,8 +88,10 @@ const userController = {
         const { error } = newsValidate.delete(req.body);
         if (error) return res.status(400).send(error.message);
 
+        
+        const _id = jwt.verify(req.body.deleterId, process.env.TOKEN_KEY);
         const news = await News.findOne({ _id: req.body._id });
-        const user = await User.findOne({ _id: req.body.deleterId });
+        const user = await User.findOne({ _id: _id._id });
 
         console.log(news);
         console.log(user);

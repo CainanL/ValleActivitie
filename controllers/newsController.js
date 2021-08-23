@@ -39,7 +39,8 @@ const userController = {
         if (error) return res.status(400).send(error.message);
 
         //Verify admin and send news
-        const readerData = await User.findOne({ _id: req.body.readerId });
+        const _id = jwt.verify(req.body.readerId, process.env.TOKEN_KEY);
+        const readerData = await User.findOne({ _id: _id._id });
 
         if (readerData.admin) {
             const news = await News.find({ title: { $regex: req.body.title } });

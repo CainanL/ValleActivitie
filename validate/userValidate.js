@@ -35,5 +35,12 @@ module.exports = userValidate = {
             _id: joi.string().required()
         })
         return schema.validate(data);
+    },
+
+    token: data => {
+        const schema = joi.object({
+            token: joi.string().required()
+        })
+        return schema.validate(data);
     }
 }

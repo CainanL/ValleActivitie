@@ -65,8 +65,6 @@ const userController = {
         const news = await News.findOne({ _id: req.body._id });
         const user = await User.findOne({ _id: _id._id });
 
-        console.log(news, user)
-
         //News user verification
         if (!user.admin && user._id != news.posterId) return res.status(403).send('Access denied');
 

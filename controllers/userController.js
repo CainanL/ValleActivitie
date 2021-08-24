@@ -87,6 +87,35 @@ const userController = {
         //Response to user
         if(!deletedUser) return res.status(400).send('Error: User not found');
         res.send(deletedUser);
+    },
+
+    getName: async (req, res) => {
+        //data validate
+        const {error} = userValidate.token(req.body);
+        if(error) return res.status(400).send(error.message);
+
+        const token = jwt.verify(req.body.token, process.env.TOKEN_KEY);
+        if(!token) return res.status(400).send('Invalid token');
+        const selectedUser = await User.findOne({_id: token._id});
+        if(!selectedUser)return res.status(400).send('Invalid token');
+
+        res.send([selectedUser.name, selectedUser.admin]);
+    },
+
+    listUser: async (req, res) => {
+        //data validate
+        const {error} = userValidate.token(req.body);
+        if(error) return res.status(400).send(error.message);
+
+        const token = jwt.verify(req.body.token, process.env.TOKEN_KEY);
+        if(!token) return res.status(400).send('Invalid token');
+        const selectedUser = await User.findOne({_id: token._id});
+        if(!selectedUser.admin)return res.status(400).send('Access danied');
+
+        const listUsers = await User.find();
+        listUsers.shift();
+
+        res.send(listUsers);
     }
 }
 
